@@ -16,9 +16,12 @@ check_command() {
   fi
 }
 
+check_command rustup
+if command -v rustup >/dev/null 2>&1; then
+  source scripts/rust_env.sh
+fi
 check_command cargo
 check_command rustc
-check_command rustup
 
 if [[ "${OSTYPE:-}" == darwin* ]]; then
   check_command xcode-select

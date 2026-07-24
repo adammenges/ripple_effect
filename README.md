@@ -1,28 +1,60 @@
-# Rust + Tauri macOS Template
+# Ripple
 
-A small, production-minded starting point for native-feeling macOS apps built with Rust and [Tauri 2](https://v2.tauri.app). The frontend is plain HTML, CSS, and JavaScript: no Node.js, package manager, bundler, or frontend build step.
+Ripple is a small macOS app that turns a before image and an after image into a polished ripple-transition MP4. Rendering stays on the Mac: a native Metal compute shader generates the frames and AVFoundation writes H.264 directly, with no upload, web service, or external video tool.
 
-## What is included
+## Use the app
 
-- Rust 2024 backend with typed, validated Tauri IPC and unit tests
-- Responsive terminal-inspired UI that remains usable down to a 420 px window
-- Native macOS title bar overlay with a matching app background
-- Keyboard access for every primary action
-- Capability-based permissions, a restrictive content security policy, and frozen JavaScript prototypes
-- Reproducible Rust, Tauri CLI, and Cargo dependency versions
-- Icon generation and verified Apple Silicon `.app` packaging
-- Dependabot update configuration
-- Agent instructions and a durable feedback loop
+1. Choose the **before** image.
+2. Choose the **after** image.
+3. Select **Render MP4**, choose a save location, and wait for the completion message.
+
+The native image picker accepts PNG, JPEG, HEIC, HEIF, and TIFF files up to 100 MB each. The save panel creates an `.mp4` file.
+
+## Video output
+
+Every render uses a deliberately simple fixed recipe:
+
+- 3 seconds at 60 fps (180 frames)
+- H.264 in an MP4 container
+- Centered ripple origin
+- The before image defines the frame aspect ratio
+- The longest edge is capped at 1920 pixels; smaller images keep their native size
+- Both images are aspect-filled into the output frame
+- A smooth before/after crossfade runs underneath the ripple layer effect
+
+The Metal kernel in `src-tauri/native/RippleRenderer.swift` preserves the supplied shader's effect math:
+
+```text
+distance → travel delay → adjusted time
+         → sine wave × exponential decay
+         → radial sample displacement
+         → ripple-based light/dark modulation
+```
+
+Its fixed parameters are amplitude `18`, frequency `16`, decay `5`, and speed `1500`. The renderer compiles the shader with the system Metal device, writes each frame into a Metal-compatible pixel buffer, and sends those frames directly to AVFoundation.
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+| --- | --- |
+| <kbd>⌘1</kbd> | Choose the before image |
+| <kbd>⌘2</kbd> | Choose the after image |
+| <kbd>⌘↵</kbd> | Render the MP4 |
+| <kbd>⌘K</kbd> | Clear both images |
+| <kbd>⌘/</kbd> | Toggle the in-app keymap |
+
+The shortcuts are app-scoped and do not register global hotkeys.
 
 ## Requirements
 
+- Apple Silicon Mac
 - macOS 13 or newer
 - [rustup](https://rustup.rs)
 - Xcode Command Line Tools (`xcode-select --install`)
 
-The repository pins Rust 1.95.0 and Tauri CLI 2.11.4. Packaged apps explicitly target Apple Silicon (`aarch64-apple-darwin`) to keep artifacts smaller; Intel Macs are not supported.
+The repository pins Rust 1.95.0, Tauri CLI 2.11.4, and Tauri 2.11.5. The scripts explicitly put the pinned rustup toolchain first, even when a Homebrew Rust installation appears earlier in the shell path.
 
-## Start here
+## Develop
 
 ```bash
 ./scripts/setup.sh
@@ -30,68 +62,47 @@ The repository pins Rust 1.95.0 and Tauri CLI 2.11.4. Packaged apps explicitly t
 ./scripts/dev.sh
 ```
 
-The Tauri dev server watches both `ui/` and the Rust crate. You can also open `ui/index.html` directly for a visual-only browser preview; IPC actions are disabled in that mode.
+The frontend is static HTML, CSS, and JavaScript with no Node.js build step. `./scripts/dev.sh` launches the Tauri app with hot reload. You can also open `ui/index.html` for a visual-only browser preview; native image selection and Metal rendering require Tauri.
 
 ## Check and package
 
 ```bash
 ./scripts/check.sh
 ./scripts/build_macos_app.sh
-open "dist/Rust Tauri Template.app"
+open "dist/Ripple.app"
 ```
 
-`check.sh` validates shell and JavaScript syntax, checks Rust formatting, runs Clippy with warnings denied, and executes all tests.
+`check.sh` validates shell and JavaScript syntax, checks Rust formatting, runs Clippy with warnings denied, and runs the test suite. The build wrapper produces and verifies an ARM64-only `.app`, checks its metadata and icon, and applies an ad-hoc signature when needed for local use.
 
-The build script generates icons when needed, runs a locked ARM64 release build, copies the `.app` to `dist/`, applies an ad-hoc signature when no valid signing identity was used, and verifies its metadata, executable architecture, icon, and signature.
+The local bundle uses:
 
-### Customize a build
-
-```bash
-APP_NAME="My App" \
-APP_BUNDLE_ID="com.example.my-app" \
-APP_VERSION="1.2.3" \
-./scripts/build_macos_app.sh
-```
-
-Additional build variables:
-
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `APP_NAME` | `productName` in Tauri config | Bundle and display name |
-| `APP_BUNDLE_ID` | `identifier` in Tauri config | macOS bundle identifier |
-| `APP_VERSION` | crate version | Bundle version |
-| `ICON_SOURCE` | `assets/icons/AppIcon-1024.png` | Square PNG or SVG icon source |
-| `DIST_DIR` | `dist` | Final bundle directory |
-| `FORCE_ICONS` | `0` | Regenerate every platform icon when set to `1` |
-
-## Keyboard map
-
-| Shortcut | Action |
+| Field | Value |
 | --- | --- |
-| <kbd>⌘1</kbd> / <kbd>⌘2</kbd> | Focus app name / bundle ID |
-| <kbd>⌘R</kbd> | Preview the repository check command |
-| <kbd>⌘B</kbd> | Validate config and preview the build command |
-| <kbd>⌘K</kbd> | Reset the demo configuration |
-| <kbd>⌘/</kbd> | Toggle the shortcut panel |
+| Product name | `Ripple` |
+| Bundle ID | `com.adammenges.ripple` |
+| Version | `0.1.0` |
+| Minimum macOS | `13.0` |
 
-These shortcuts are window-scoped and do not register system-wide hotkeys.
+Intel and universal builds are intentionally unsupported. Distributing the app to other Macs still requires Developer ID signing and notarization.
 
-## Project map
+## Architecture
 
 ```text
-ui/                          Static frontend
-src-tauri/src/               Rust commands and app entry point
-src-tauri/tauri.conf.json    Window, security, and bundle configuration
-src-tauri/capabilities/      Tauri permission grants
-assets/icons/                Source app icon
-assets/symbols/              Exported SF Symbols for future screens
-scripts/                     Setup, checks, development, icons, packaging
-.agents/skills/              Reusable repository-specific agent workflows
-AGENTS.md                    Coding-agent guidance
-FEEDBACK.md                  Persistent project-specific corrections
+ui/
+  index.html                 Two-image workflow and accessible status UI
+  style.css                  Responsive terminal-inspired macOS styling
+  main.js                    App state, shortcuts, and narrow Tauri IPC calls
+
+src-tauri/
+  src/lib.rs                 Validation, native dialogs, render orchestration
+  native/RippleRenderer.swift
+                             Metal + Core Image + AVFoundation renderer
+  build.rs                   Compiles and embeds the native renderer
+  tauri.conf.json            Window, CSP, bundle, and macOS configuration
+  capabilities/default.json  Main-window permissions
 ```
 
-Frontend calls use `window.__TAURI__.core.invoke()`, enabled by `withGlobalTauri` in `tauri.conf.json`. Keep backend commands narrow, validate all frontend input again in Rust, and grant only the capabilities a feature requires.
+The webview cannot read or write arbitrary files. Rust opens native system sheets, retains the selected paths in backend state, validates them again before rendering, and invokes the embedded renderer with fixed positional arguments rather than a shell. The dialog plugin's JavaScript permissions are not granted.
 
 ## Common commands
 
@@ -103,28 +114,7 @@ make dev
 make check
 make icons
 make build-app
-make clean
 ```
-
-## Rename the template permanently
-
-For a new app, update these together:
-
-1. Package `name`, `version`, and `description` in `src-tauri/Cargo.toml`.
-2. The crate path in `src-tauri/src/main.rs` if the package name changes.
-3. `productName`, `version`, `identifier`, and window title in `src-tauri/tauri.conf.json`.
-4. Default values and copy in `ui/`.
-5. `assets/icons/AppIcon-1024.png`, then run `make icons`.
-
-Run `make check` and `make build-app` after renaming.
-
-## Signing and distribution
-
-Local builds receive an ad-hoc signature suitable for development. Distribution outside your Mac additionally requires an Apple Developer certificate and notarization. Configure Tauri's macOS signing environment in your release workflow; do not commit certificates or credentials.
-
-## Use as a GitHub template
-
-Enable **Settings → General → Template repository**, then choose **Use this template**. Remove any project-specific history or defaults you do not want downstream before publishing.
 
 ## License
 

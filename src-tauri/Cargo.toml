@@ -1,15 +1,17 @@
 [package]
-name = "macos_tauri_template"
+name = "ripple"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true
-description = "GitHub template for modern macOS desktop apps built in Rust with Tauri"
+description = "Create a Metal-powered ripple transition MP4 from before and after images"
 license.workspace = true
 publish = false
 
 [dependencies]
 serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.145"
 tauri = { version = "2.11.5", default-features = false, features = ["compression", "wry"] }
+tauri-plugin-dialog = { version = "2.7.2", default-features = false }
 
 [build-dependencies]
 tauri-build = { version = "2.6.3", features = [] }

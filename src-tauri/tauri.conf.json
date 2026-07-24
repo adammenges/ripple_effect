@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Rust Tauri Template",
+  "productName": "Ripple",
   "version": "0.1.0",
-  "identifier": "com.example.macos-tauri-template",
+  "identifier": "com.adammenges.ripple",
   "build": {
     "frontendDist": "../ui",
     "removeUnusedCommands": true
@@ -12,12 +12,12 @@
     "windows": [
       {
         "label": "main",
-        "title": "Rust Tauri Template",
+        "title": "Ripple",
         "width": 960,
-        "height": 720,
+        "height": 780,
         "minWidth": 420,
-        "minHeight": 480,
-        "backgroundColor": "#0b1012",
+        "minHeight": 560,
+        "backgroundColor": "#090d0e",
         "transparent": false,
         "decorations": true,
         "hiddenTitle": true,

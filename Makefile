@@ -3,7 +3,7 @@
 .PHONY: help setup doctor dev check icons build-app clean
 
 help:
-	@echo "Rust + Tauri macOS template"
+	@echo "Ripple — Metal-powered before/after video transitions"
 	@echo ""
 	@echo "  make setup      Install pinned tools and fetch dependencies"
 	@echo "  make doctor     Check the local development environment"
@@ -26,11 +26,11 @@ check:
 	./scripts/check.sh
 
 icons:
-	cargo tauri icon assets/icons/AppIcon-1024.png
+	. ./scripts/rust_env.sh && cargo tauri icon assets/icons/AppIcon-1024.png
 
 build-app:
 	./scripts/build_macos_app.sh
 
 clean:
-	cargo clean
+	. ./scripts/rust_env.sh && cargo clean
 	rm -rf dist

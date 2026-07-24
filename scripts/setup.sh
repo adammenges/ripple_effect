@@ -12,6 +12,7 @@ if ! command -v rustup >/dev/null 2>&1; then
 fi
 
 rustup toolchain install 1.95.0 --profile minimal --component rustfmt --component clippy
+source scripts/rust_env.sh
 
 INSTALLED_TAURI_VERSION="$(cargo tauri --version 2>/dev/null | awk '{print $2}' || true)"
 if [[ "$INSTALLED_TAURI_VERSION" != "$TAURI_CLI_VERSION" ]]; then

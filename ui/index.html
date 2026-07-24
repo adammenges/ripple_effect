@@ -4,101 +4,133 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#0b1012">
-    <title>Rust Tauri Template</title>
+    <meta name="theme-color" content="#090d0e">
+    <title>Ripple</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="titlebar" id="titlebar" aria-hidden="true">
-        <span>~/rust-tauri-template</span>
+        <span>~/ripple</span>
+        <span class="titlebar-mode">METAL / H.264</span>
     </div>
 
     <main id="app">
         <div class="shell">
             <header class="hero">
-                <div class="prompt-line"><span class="prompt">➜</span> cargo tauri dev<span class="cursor" aria-hidden="true"></span></div>
-                <pre class="banner banner-wide" aria-hidden="true">┌─────────────────────────────────────────────┐
-│  RUST × TAURI  //  MACOS STARTER KIT       │
-└─────────────────────────────────────────────┘</pre>
-                <pre class="banner banner-compact" aria-hidden="true">┌──────────────────────┐
-│ RUST × TAURI // KIT │
-└──────────────────────┘</pre>
-                <h1>Ship a small, native-feeling macOS app.</h1>
-                <p>Rust on the back. Vanilla web tech on the front. Zero frontend toolchain.</p>
+                <div class="prompt-line">
+                    <span class="prompt">➜</span>
+                    <span>ripple --before image --after image --output mp4</span>
+                    <span class="cursor" aria-hidden="true"></span>
+                </div>
+                <div class="hero-copy">
+                    <div>
+                        <span class="eyebrow">NATIVE MACOS VIDEO TOOL</span>
+                        <h1>Two images in.<br>One clean ripple out.</h1>
+                    </div>
+                    <p>Choose the before and after. Ripple renders a 3-second, 60 fps MP4 using the exact damped-wave displacement in Metal.</p>
+                </div>
             </header>
 
-            <div class="workspace">
-                <section class="panel config-panel" aria-labelledby="config-title">
-                    <div class="panel-heading">
-                        <div>
-                            <span class="eyebrow">01 / CONFIG</span>
-                            <h2 id="config-title">Bundle identity</h2>
-                        </div>
-                        <span class="badge">required</span>
+            <section class="image-workspace" aria-labelledby="images-title">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">01 / SOURCE FRAMES</span>
+                        <h2 id="images-title">Choose two images</h2>
                     </div>
-
-                    <form id="config-form" novalidate>
-                        <div class="field">
-                            <div class="label-row">
-                                <label for="app-name">APP_NAME</label>
-                                <kbd>⌘1</kbd>
-                            </div>
-                            <input type="text" id="app-name" value="My Mac App" maxlength="64" autocomplete="off" spellcheck="false" aria-describedby="app-name-hint">
-                            <small id="app-name-hint">Letters, numbers, spaces, dots, hyphens, underscores.</small>
-                        </div>
-
-                        <div class="field">
-                            <div class="label-row">
-                                <label for="bundle-id">APP_BUNDLE_ID</label>
-                                <kbd>⌘2</kbd>
-                            </div>
-                            <input type="text" id="bundle-id" value="com.example.my-mac-app" maxlength="255" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="bundle-id-hint">
-                            <small id="bundle-id-hint">Reverse DNS, for example com.yourcompany.your-app.</small>
-                        </div>
-                    </form>
-                </section>
-
-                <section class="panel actions-panel" aria-labelledby="actions-title">
-                    <div class="panel-heading">
-                        <div>
-                            <span class="eyebrow">02 / ACTIONS</span>
-                            <h2 id="actions-title">Command palette</h2>
-                        </div>
-                        <button class="icon-button" id="btn-shortcuts" type="button" aria-label="Show keyboard shortcuts">⌘/</button>
-                    </div>
-
-                    <div class="action-list">
-                        <button class="action" id="btn-check" type="button">
-                            <span><strong>Preview checks</strong><small>fmt · clippy · test</small></span>
-                            <kbd>⌘R</kbd>
-                        </button>
-                        <button class="action primary" id="btn-build" type="button">
-                            <span><strong>Preview .app build</strong><small>release · bundle · verify</small></span>
-                            <kbd>⌘B</kbd>
-                        </button>
-                        <button class="action quiet" id="btn-reset" type="button">
-                            <span><strong>Reset config</strong><small>restore template values</small></span>
-                            <kbd>⌘K</kbd>
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <section class="terminal" aria-labelledby="terminal-title">
-                <div class="terminal-bar">
-                    <div class="terminal-title-wrap">
-                        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-                        <h2 id="terminal-title">command.deck</h2>
-                    </div>
-                    <button id="btn-copy" class="copy-button" type="button" disabled>copy</button>
+                    <span class="format-note">PNG · JPEG · HEIC · TIFF</span>
                 </div>
-                <p id="status" class="status" role="status" aria-live="polite">Ready. Choose an action or use a keyboard shortcut.</p>
-                <pre id="command-deck" tabindex="0"></pre>
+
+                <div class="image-flow">
+                    <button class="image-slot" id="choose-before" type="button" aria-describedby="before-meta">
+                        <span class="slot-topline">
+                            <span>BEFORE</span>
+                            <kbd>⌘1</kbd>
+                        </span>
+                        <span class="slot-art before-art" aria-hidden="true">
+                            <span class="image-glyph">
+                                <i></i><i></i><i></i>
+                            </span>
+                            <span class="slot-crosshair">+</span>
+                        </span>
+                        <span class="slot-copy">
+                            <strong id="before-name">Choose before image</strong>
+                            <small id="before-meta">The starting frame</small>
+                        </span>
+                    </button>
+
+                    <div class="flow-mark" aria-hidden="true">
+                        <span class="flow-ring"></span>
+                        <span>→</span>
+                    </div>
+
+                    <button class="image-slot" id="choose-after" type="button" aria-describedby="after-meta">
+                        <span class="slot-topline">
+                            <span>AFTER</span>
+                            <kbd>⌘2</kbd>
+                        </span>
+                        <span class="slot-art after-art" aria-hidden="true">
+                            <span class="image-glyph">
+                                <i></i><i></i><i></i>
+                            </span>
+                            <span class="slot-crosshair">+</span>
+                        </span>
+                        <span class="slot-copy">
+                            <strong id="after-name">Choose after image</strong>
+                            <small id="after-meta">The ending frame</small>
+                        </span>
+                    </button>
+                </div>
+            </section>
+
+            <section class="render-panel" aria-labelledby="render-title">
+                <div class="render-copy">
+                    <span class="eyebrow">02 / RENDER</span>
+                    <h2 id="render-title">Centered ripple transition</h2>
+                    <p>The images are aspect-filled to the before frame. A smooth crossfade passes underneath the supplied ripple layer effect.</p>
+                </div>
+
+                <div class="effect-readout" aria-label="Fixed render settings">
+                    <span><b>03.0</b> SEC</span>
+                    <span><b>060</b> FPS</span>
+                    <span><b>H.264</b> MP4</span>
+                    <span><b>METAL</b> GPU</span>
+                </div>
+
+                <div class="render-actions">
+                    <button class="secondary-button" id="clear-images" type="button" disabled>
+                        Clear
+                        <kbd>⌘K</kbd>
+                    </button>
+                    <button class="render-button" id="render-video" type="button" disabled>
+                        <span>Render MP4</span>
+                        <kbd>⌘↵</kbd>
+                    </button>
+                </div>
+            </section>
+
+            <section class="console" aria-labelledby="console-title">
+                <div class="console-bar">
+                    <div class="console-label">
+                        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+                        <h2 id="console-title">render.log</h2>
+                    </div>
+                    <button id="show-shortcuts" class="keymap-button" type="button">keymap <kbd>⌘/</kbd></button>
+                </div>
+                <div class="progress-track" id="progress-track" hidden aria-hidden="true">
+                    <span></span>
+                </div>
+                <p class="status" id="status" role="status" aria-live="polite">Ready. Choose the before image.</p>
+                <dl class="result" id="render-result" hidden>
+                    <div><dt>FILE</dt><dd id="result-file">—</dd></div>
+                    <div><dt>FRAME</dt><dd id="result-frame">—</dd></div>
+                    <div><dt>VIDEO</dt><dd id="result-video">—</dd></div>
+                    <div><dt>SIZE</dt><dd id="result-size">—</dd></div>
+                </dl>
             </section>
 
             <footer>
-                <span>TAURI 2 · RUST 2024 · MACOS 13+</span>
-                <span>Press <kbd>⌘/</kbd> for shortcuts</span>
+                <span>RIPPLE 0.1 · APPLE SILICON · MACOS 13+</span>
+                <span>FILES STAY ON THIS MAC</span>
             </footer>
         </div>
     </main>
@@ -109,15 +141,14 @@
                 <span class="eyebrow">KEYMAP</span>
                 <h2 id="shortcuts-title">Keyboard shortcuts</h2>
             </div>
-            <button id="btn-close-shortcuts" class="icon-button" type="button" aria-label="Close keyboard shortcuts">×</button>
+            <button id="close-shortcuts" class="close-button" type="button" aria-label="Close keyboard shortcuts">×</button>
         </div>
         <dl class="shortcut-list">
-            <div><dt><kbd>⌘1</kbd></dt><dd>Focus app name</dd></div>
-            <div><dt><kbd>⌘2</kbd></dt><dd>Focus bundle ID</dd></div>
-            <div><dt><kbd>⌘R</kbd></dt><dd>Preview checks</dd></div>
-            <div><dt><kbd>⌘B</kbd></dt><dd>Preview build</dd></div>
-            <div><dt><kbd>⌘K</kbd></dt><dd>Reset config</dd></div>
-            <div><dt><kbd>⌘/</kbd></dt><dd>Toggle this panel</dd></div>
+            <div><dt><kbd>⌘1</kbd></dt><dd>Choose before image</dd></div>
+            <div><dt><kbd>⌘2</kbd></dt><dd>Choose after image</dd></div>
+            <div><dt><kbd>⌘↵</kbd></dt><dd>Render MP4</dd></div>
+            <div><dt><kbd>⌘K</kbd></dt><dd>Clear images</dd></div>
+            <div><dt><kbd>⌘/</kbd></dt><dd>Toggle keymap</dd></div>
         </dl>
     </dialog>
 

@@ -17,6 +17,7 @@ for command in cargo codesign lipo rustup xcode-select; do
     exit 1
   fi
 done
+source scripts/rust_env.sh
 
 if ! xcode-select -p >/dev/null 2>&1; then
   echo "error: Xcode Command Line Tools are required. Run: xcode-select --install" >&2
