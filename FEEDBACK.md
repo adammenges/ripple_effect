@@ -1,0 +1,3 @@
+- Always make the top bar the same McClair is the background so that it blends in it looks more like a native app
+- Make the UI reactive to window size by adapting layout/components at any width
+- For custom Tauri title bars, call the current window's `startDragging()` explicitly and grant `core:window:allow-start-dragging`; the injected `data-tauri-drag-region` handler was not reliable here. Verify that the real native window position changes.

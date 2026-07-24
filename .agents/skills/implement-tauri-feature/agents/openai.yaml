@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement Tauri Feature"
+  short_description: "Build complete UI-to-Rust Tauri features"
+  default_prompt: "Use $implement-tauri-feature to add an end-to-end feature to this app."

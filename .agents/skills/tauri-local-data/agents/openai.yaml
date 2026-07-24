@@ -1,0 +1,4 @@
+interface:
+  display_name: "Tauri Local Data"
+  short_description: "Build safe local storage and data lifecycles"
+  default_prompt: "Use $tauri-local-data to add durable local storage to this Tauri app."

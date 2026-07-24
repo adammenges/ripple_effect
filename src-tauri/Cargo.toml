@@ -1,0 +1,18 @@
+[package]
+name = "macos_tauri_template"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+description = "GitHub template for modern macOS desktop apps built in Rust with Tauri"
+license.workspace = true
+publish = false
+
+[dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+tauri = { version = "2.11.5", default-features = false, features = ["compression", "wry"] }
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[lints]
+workspace = true

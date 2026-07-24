@@ -1,0 +1,4 @@
+interface:
+  display_name: "Diagnose macOS Toolchain"
+  short_description: "Diagnose Rust, Tauri, and macOS toolchains"
+  default_prompt: "Use $diagnose-macos-toolchain to investigate this project setup or build environment."

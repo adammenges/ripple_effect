@@ -1,0 +1,4 @@
+interface:
+  display_name: "Package macOS App"
+  short_description: "Build and verify distributable macOS app bundles"
+  default_prompt: "Use $package-macos-app to build and verify this app macOS bundle."

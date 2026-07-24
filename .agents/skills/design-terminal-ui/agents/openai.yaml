@@ -1,0 +1,4 @@
+interface:
+  display_name: "Design Terminal UI"
+  short_description: "Craft accessible terminal-style app interfaces"
+  default_prompt: "Use $design-terminal-ui to design or refine this app interface."

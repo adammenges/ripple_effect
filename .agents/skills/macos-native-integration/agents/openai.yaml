@@ -1,0 +1,4 @@
+interface:
+  display_name: "macOS Native Integration"
+  short_description: "Add native macOS behaviors and integrations"
+  default_prompt: "Use $macos-native-integration to add a native macOS integration to this Tauri app."

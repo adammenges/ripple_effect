@@ -1,0 +1,4 @@
+interface:
+  display_name: "Customize Tauri App"
+  short_description: "Rename and configure this Tauri macOS app"
+  default_prompt: "Use $customize-tauri-app to rename and configure this app consistently."

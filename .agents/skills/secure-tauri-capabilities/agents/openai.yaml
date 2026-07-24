@@ -1,0 +1,4 @@
+interface:
+  display_name: "Secure Tauri Capabilities"
+  short_description: "Review CSP, IPC, and Tauri capability grants"
+  default_prompt: "Use $secure-tauri-capabilities to make this Tauri permission or IPC change safely."

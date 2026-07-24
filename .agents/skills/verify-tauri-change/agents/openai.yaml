@@ -1,0 +1,4 @@
+interface:
+  display_name: "Verify Tauri Change"
+  short_description: "Run focused checks for Tauri app changes"
+  default_prompt: "Use $verify-tauri-change to validate this change at the appropriate depth."
