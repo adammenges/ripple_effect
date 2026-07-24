@@ -6,9 +6,10 @@ Ripple is a small macOS app that turns a before image and an after image into a 
 
 1. Choose the **before** image.
 2. Choose the **after** image.
-3. Select **Render MP4**, choose a save location, and wait for the completion message.
+3. Choose one of the nine **ripple origin** points.
+4. Select **Render MP4**, choose a save location, and wait for the completion message.
 
-The native image picker accepts PNG, JPEG, HEIC, HEIF, and TIFF files up to 100 MB each. The save panel creates an `.mp4` file.
+The native image picker accepts PNG, JPEG, HEIC, HEIF, and TIFF files up to 100 MB each. EXIF orientation metadata is applied before the images are sized or rendered, so portrait and rotated source images remain upright. The save panel creates an `.mp4` file.
 
 ## Video output
 
@@ -16,7 +17,7 @@ Every render uses a deliberately simple fixed recipe:
 
 - 3 seconds at 60 fps (180 frames)
 - H.264 in an MP4 container
-- Centered ripple origin
+- User-selected ripple origin from a nine-point frame grid (center by default)
 - The before image defines the frame aspect ratio
 - The longest edge is capped at 1920 pixels; smaller images keep their native size
 - Both images are aspect-filled into the output frame
@@ -31,7 +32,7 @@ distance → travel delay → adjusted time
          → ripple-based light/dark modulation
 ```
 
-Its fixed parameters are amplitude `18`, frequency `16`, decay `5`, and speed `1500`. The renderer compiles the shader with the system Metal device, writes each frame into a Metal-compatible pixel buffer, and sends those frames directly to AVFoundation.
+Its fixed parameters are amplitude `18`, frequency `16`, decay `5`, and speed `1500`. The origin is passed as normalized top-left coordinates. The renderer reads and applies EXIF orientation explicitly, reconciles Core Image's bottom-left coordinate system with Metal's top-left texture coordinates, compiles the shader with the system Metal device, writes each frame into a Metal-compatible pixel buffer, and sends those frames directly to AVFoundation.
 
 ## Keyboard shortcuts
 

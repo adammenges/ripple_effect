@@ -3,122 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="color-scheme" content="dark">
-    <meta name="theme-color" content="#090d0e">
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#ffffff">
     <title>Ripple</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="titlebar" id="titlebar" aria-hidden="true">
-        <span>~/ripple</span>
-        <span class="titlebar-mode">METAL / H.264</span>
+        <span>RPL / 01</span>
+        <span>RIPPLE</span>
+        <span>METAL + H.264</span>
     </div>
 
     <main id="app">
         <div class="shell">
             <header class="hero">
-                <div class="prompt-line">
-                    <span class="prompt">➜</span>
-                    <span>ripple --before image --after image --output mp4</span>
-                    <span class="cursor" aria-hidden="true"></span>
+                <div class="brand-mark" aria-hidden="true">R</div>
+                <div class="hero-title">
+                    <p class="kicker">NATIVE IMAGE TRANSITION / macOS</p>
+                    <h1>MAKE<br>WAVES.</h1>
                 </div>
-                <div class="hero-copy">
-                    <div>
-                        <span class="eyebrow">NATIVE MACOS VIDEO TOOL</span>
-                        <h1>Two images in.<br>One clean ripple out.</h1>
-                    </div>
-                    <p>Choose the before and after. Ripple renders a 3-second, 60 fps MP4 using the exact damped-wave displacement in Metal.</p>
+                <p class="hero-intro">Transform two still images into one precise, three-second ripple transition. Private, local, and rendered on the GPU.</p>
+                <div class="hero-index" aria-hidden="true">
+                    <span>01—03</span>
+                    <span>60 FPS</span>
                 </div>
             </header>
 
-            <section class="image-workspace" aria-labelledby="images-title">
-                <div class="section-heading">
+            <section class="workflow-section sources" aria-labelledby="images-title">
+                <header class="section-header">
+                    <span class="section-number">01</span>
                     <div>
-                        <span class="eyebrow">01 / SOURCE FRAMES</span>
-                        <h2 id="images-title">Choose two images</h2>
+                        <p class="kicker">SOURCE MATERIAL</p>
+                        <h2 id="images-title">Select the two frames.</h2>
                     </div>
-                    <span class="format-note">PNG · JPEG · HEIC · TIFF</span>
-                </div>
+                    <span class="section-note">PNG / JPEG / HEIC / TIFF</span>
+                </header>
 
                 <div class="image-flow">
                     <button class="image-slot" id="choose-before" type="button" aria-describedby="before-meta">
-                        <span class="slot-topline">
-                            <span>BEFORE</span>
-                            <kbd>⌘1</kbd>
-                        </span>
-                        <span class="slot-art before-art" aria-hidden="true">
-                            <span class="image-glyph">
-                                <i></i><i></i><i></i>
-                            </span>
-                            <span class="slot-crosshair">+</span>
+                        <span class="slot-index">A</span>
+                        <span class="slot-role">BEFORE</span>
+                        <span class="slot-graphic" aria-hidden="true">
+                            <span class="graphic-sun"></span>
+                            <span class="graphic-line line-one"></span>
+                            <span class="graphic-line line-two"></span>
                         </span>
                         <span class="slot-copy">
                             <strong id="before-name">Choose before image</strong>
-                            <small id="before-meta">The starting frame</small>
+                            <small id="before-meta">Starting frame</small>
                         </span>
+                        <kbd>⌘1</kbd>
                     </button>
 
-                    <div class="flow-mark" aria-hidden="true">
-                        <span class="flow-ring"></span>
-                        <span>→</span>
+                    <div class="flow-axis" aria-hidden="true">
+                        <span></span>
+                        <b>→</b>
+                        <span></span>
                     </div>
 
                     <button class="image-slot" id="choose-after" type="button" aria-describedby="after-meta">
-                        <span class="slot-topline">
-                            <span>AFTER</span>
-                            <kbd>⌘2</kbd>
-                        </span>
-                        <span class="slot-art after-art" aria-hidden="true">
-                            <span class="image-glyph">
-                                <i></i><i></i><i></i>
-                            </span>
-                            <span class="slot-crosshair">+</span>
+                        <span class="slot-index">B</span>
+                        <span class="slot-role">AFTER</span>
+                        <span class="slot-graphic ripple-graphic" aria-hidden="true">
+                            <span class="graphic-sun"></span>
+                            <span class="graphic-line line-one"></span>
+                            <span class="graphic-line line-two"></span>
+                            <span class="graphic-ripple"></span>
                         </span>
                         <span class="slot-copy">
                             <strong id="after-name">Choose after image</strong>
-                            <small id="after-meta">The ending frame</small>
+                            <small id="after-meta">Ending frame</small>
                         </span>
+                        <kbd>⌘2</kbd>
                     </button>
                 </div>
             </section>
 
-            <section class="render-panel" aria-labelledby="render-title">
-                <div class="render-copy">
-                    <span class="eyebrow">02 / RENDER</span>
-                    <h2 id="render-title">Centered ripple transition</h2>
-                    <p>The images are aspect-filled to the before frame. A smooth crossfade passes underneath the supplied ripple layer effect.</p>
-                </div>
-
-                <div class="effect-readout" aria-label="Fixed render settings">
-                    <span><b>03.0</b> SEC</span>
-                    <span><b>060</b> FPS</span>
-                    <span><b>H.264</b> MP4</span>
-                    <span><b>METAL</b> GPU</span>
-                </div>
-
-                <div class="render-actions">
-                    <button class="secondary-button" id="clear-images" type="button" disabled>
-                        Clear
-                        <kbd>⌘K</kbd>
-                    </button>
-                    <button class="render-button" id="render-video" type="button" disabled>
-                        <span>Render MP4</span>
-                        <kbd>⌘↵</kbd>
-                    </button>
-                </div>
-            </section>
-
-            <section class="console" aria-labelledby="console-title">
-                <div class="console-bar">
-                    <div class="console-label">
-                        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
-                        <h2 id="console-title">render.log</h2>
+            <section class="workflow-section origin-section" aria-labelledby="origin-title">
+                <header class="section-header">
+                    <span class="section-number">02</span>
+                    <div>
+                        <p class="kicker">RIPPLE ORIGIN</p>
+                        <h2 id="origin-title">Choose where the wave begins.</h2>
                     </div>
-                    <button id="show-shortcuts" class="keymap-button" type="button">keymap <kbd>⌘/</kbd></button>
+                    <span class="section-note" id="origin-readout">CENTER / 50—50</span>
+                </header>
+
+                <div class="origin-layout">
+                    <div class="origin-copy">
+                        <p>The selected point maps directly to the output frame. Image orientation metadata is applied before the effect is rendered.</p>
+                        <dl class="technical-list">
+                            <div><dt>ORIENTATION</dt><dd>EXIF AWARE</dd></div>
+                            <div><dt>COORDINATES</dt><dd>TOP—LEFT</dd></div>
+                            <div><dt>DEFAULT</dt><dd>CENTER</dd></div>
+                        </dl>
+                    </div>
+
+                    <fieldset class="origin-fieldset">
+                        <legend class="visually-hidden">Ripple starting point</legend>
+                        <div class="origin-grid">
+                            <label><input type="radio" name="origin" data-x="0.15" data-y="0.15" data-label="Top left" aria-label="Top left"><span><i></i></span><b>TL</b></label>
+                            <label><input type="radio" name="origin" data-x="0.5" data-y="0.15" data-label="Top center" aria-label="Top center"><span><i></i></span><b>TC</b></label>
+                            <label><input type="radio" name="origin" data-x="0.85" data-y="0.15" data-label="Top right" aria-label="Top right"><span><i></i></span><b>TR</b></label>
+                            <label><input type="radio" name="origin" data-x="0.15" data-y="0.5" data-label="Center left" aria-label="Center left"><span><i></i></span><b>CL</b></label>
+                            <label><input type="radio" name="origin" data-x="0.5" data-y="0.5" data-label="Center" aria-label="Center" checked><span><i></i></span><b>CC</b></label>
+                            <label><input type="radio" name="origin" data-x="0.85" data-y="0.5" data-label="Center right" aria-label="Center right"><span><i></i></span><b>CR</b></label>
+                            <label><input type="radio" name="origin" data-x="0.15" data-y="0.85" data-label="Bottom left" aria-label="Bottom left"><span><i></i></span><b>BL</b></label>
+                            <label><input type="radio" name="origin" data-x="0.5" data-y="0.85" data-label="Bottom center" aria-label="Bottom center"><span><i></i></span><b>BC</b></label>
+                            <label><input type="radio" name="origin" data-x="0.85" data-y="0.85" data-label="Bottom right" aria-label="Bottom right"><span><i></i></span><b>BR</b></label>
+                        </div>
+                    </fieldset>
                 </div>
-                <div class="progress-track" id="progress-track" hidden aria-hidden="true">
-                    <span></span>
+            </section>
+
+            <section class="workflow-section output-section" aria-labelledby="render-title">
+                <header class="section-header">
+                    <span class="section-number">03</span>
+                    <div>
+                        <p class="kicker">OUTPUT</p>
+                        <h2 id="render-title">Render the transition.</h2>
+                    </div>
+                    <span class="section-note">LOCAL PROCESSING ONLY</span>
+                </header>
+
+                <div class="render-layout">
+                    <dl class="effect-readout" aria-label="Fixed render settings">
+                        <div><dt>DURATION</dt><dd>03.0 SEC</dd></div>
+                        <div><dt>RATE</dt><dd>060 FPS</dd></div>
+                        <div><dt>FORMAT</dt><dd>H.264 MP4</dd></div>
+                        <div><dt>ENGINE</dt><dd>METAL GPU</dd></div>
+                    </dl>
+                    <div class="render-actions">
+                        <button class="secondary-button" id="clear-images" type="button" disabled>
+                            Clear <kbd>⌘K</kbd>
+                        </button>
+                        <button class="render-button" id="render-video" type="button" disabled>
+                            <span>Render MP4</span>
+                            <span aria-hidden="true">↗</span>
+                            <kbd>⌘↵</kbd>
+                        </button>
+                    </div>
                 </div>
+            </section>
+
+            <section class="status-panel" aria-labelledby="status-title">
+                <div class="status-header">
+                    <div>
+                        <span class="status-dot" id="status-dot" aria-hidden="true"></span>
+                        <h2 id="status-title">PROCESS STATUS</h2>
+                    </div>
+                    <button id="show-shortcuts" class="keymap-button" type="button">KEYMAP <kbd>⌘/</kbd></button>
+                </div>
+                <div class="progress-track" id="progress-track" hidden aria-hidden="true"><span></span></div>
                 <p class="status" id="status" role="status" aria-live="polite">Ready. Choose the before image.</p>
                 <dl class="result" id="render-result" hidden>
                     <div><dt>FILE</dt><dd id="result-file">—</dd></div>
@@ -129,8 +166,9 @@
             </section>
 
             <footer>
-                <span>RIPPLE 0.1 · APPLE SILICON · MACOS 13+</span>
-                <span>FILES STAY ON THIS MAC</span>
+                <span>RIPPLE® 0.1 / APPLE SILICON</span>
+                <span>FILES NEVER LEAVE THIS MAC</span>
+                <span>LOS ANGELES / 2026</span>
             </footer>
         </div>
     </main>
@@ -138,7 +176,7 @@
     <dialog id="shortcuts-dialog" aria-labelledby="shortcuts-title">
         <div class="dialog-heading">
             <div>
-                <span class="eyebrow">KEYMAP</span>
+                <p class="kicker">REFERENCE / 01</p>
                 <h2 id="shortcuts-title">Keyboard shortcuts</h2>
             </div>
             <button id="close-shortcuts" class="close-button" type="button" aria-label="Close keyboard shortcuts">×</button>

@@ -3,6 +3,7 @@ import CoreImage
 import CoreVideo
 import Darwin
 import Foundation
+import ImageIO
 import Metal
 
 private let framesPerSecond: Int32 = 60
@@ -103,6 +104,7 @@ private struct RenderSummary: Codable {
 
 private enum RenderError: LocalizedError {
     case invalidArguments
+    case invalidOrigin
     case imageUnreadable
     case invalidImageSize
     case metalUnavailable
@@ -117,6 +119,8 @@ private enum RenderError: LocalizedError {
         switch self {
         case .invalidArguments:
             return "The renderer received an invalid job."
+        case .invalidOrigin:
+            return "Choose a ripple origin inside the frame."
         case .imageUnreadable:
             return "One of the selected images could not be decoded."
         case .invalidImageSize:
@@ -190,17 +194,14 @@ private final class RippleRenderer {
         self.textureCache = textureCache
     }
 
-    func render(beforeURL: URL, afterURL: URL, outputURL: URL) throws -> RenderSummary {
-        guard let beforeImage = CIImage(
-            contentsOf: beforeURL,
-            options: [.applyOrientationProperty: true]
-        ),
-        let afterImage = CIImage(
-            contentsOf: afterURL,
-            options: [.applyOrientationProperty: true]
-        ) else {
-            throw RenderError.imageUnreadable
-        }
+    func render(
+        beforeURL: URL,
+        afterURL: URL,
+        outputURL: URL,
+        origin: SIMD2<Float>
+    ) throws -> RenderSummary {
+        let beforeImage = try loadOrientedImage(from: beforeURL)
+        let afterImage = try loadOrientedImage(from: afterURL)
 
         let dimensions = try outputDimensions(for: beforeImage.extent)
         let width = dimensions.width
@@ -285,7 +286,8 @@ private final class RippleRenderer {
                     beforeTexture: beforeTexture,
                     afterTexture: afterTexture,
                     width: width,
-                    height: height
+                    height: height,
+                    origin: origin
                 )
 
                 let presentationTime = CMTime(
@@ -322,13 +324,32 @@ private final class RippleRenderer {
         )
     }
 
+    private func loadOrientedImage(from url: URL) throws -> CIImage {
+        guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+              let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil)
+        else {
+            throw RenderError.imageUnreadable
+        }
+
+        let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil)
+            as? [CFString: Any]
+        let orientation = (properties?[kCGImagePropertyOrientation] as? NSNumber)?
+            .int32Value ?? 1
+        guard (1...8).contains(orientation) else {
+            throw RenderError.imageUnreadable
+        }
+
+        return CIImage(cgImage: cgImage).oriented(forExifOrientation: orientation)
+    }
+
     private func renderFrame(
         _ frame: Int,
         into pixelBuffer: CVPixelBuffer,
         beforeTexture: MTLTexture,
         afterTexture: MTLTexture,
         width: Int,
-        height: Int
+        height: Int,
+        origin: SIMD2<Float>
     ) throws {
         var cvTexture: CVMetalTexture?
         let textureStatus = CVMetalTextureCacheCreateTextureFromImage(
@@ -361,7 +382,7 @@ private final class RippleRenderer {
             value: seconds
         )
         var parameters = RippleParameters(
-            origin: SIMD2(Float(width) * 0.5, Float(height) * 0.5),
+            origin: SIMD2(Float(width) * origin.x, Float(height) * origin.y),
             time: max(0, seconds - rippleStart),
             amplitude: 18,
             frequency: 16,
@@ -420,11 +441,24 @@ private final class RippleRenderer {
 
         let bounds = CGRect(x: 0, y: 0, width: width, height: height)
         let fittedImage = aspectFill(image, into: bounds)
+        // Core Image uses a bottom-left origin while Metal textures and video
+        // pixel buffers use a top-left origin. Flip exactly once after applying
+        // EXIF orientation so the encoded frame matches Finder and Preview.
+        let textureImage = fittedImage.transformed(
+            by: CGAffineTransform(
+                a: 1,
+                b: 0,
+                c: 0,
+                d: -1,
+                tx: 0,
+                ty: bounds.height
+            )
+        )
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB) else {
             throw RenderError.textureUnavailable
         }
         coreImageContext.render(
-            fittedImage,
+            textureImage,
             to: texture,
             commandBuffer: nil,
             bounds: bounds,
@@ -482,8 +516,17 @@ private final class RippleRenderer {
 private enum RippleRendererCommand {
     static func main() {
         let arguments = CommandLine.arguments
-        guard arguments.count == 4 else {
+        guard arguments.count == 6 else {
             fail(RenderError.invalidArguments)
+        }
+        guard let originX = Float(arguments[4]),
+              let originY = Float(arguments[5]),
+              originX.isFinite,
+              originY.isFinite,
+              (0...1).contains(originX),
+              (0...1).contains(originY)
+        else {
+            fail(RenderError.invalidOrigin)
         }
 
         let beforeURL = URL(fileURLWithPath: arguments[1])
@@ -495,7 +538,8 @@ private enum RippleRendererCommand {
             let summary = try renderer.render(
                 beforeURL: beforeURL,
                 afterURL: afterURL,
-                outputURL: outputURL
+                outputURL: outputURL,
+                origin: SIMD2(originX, originY)
             )
             let data = try JSONEncoder().encode(summary)
             FileHandle.standardOutput.write(data)

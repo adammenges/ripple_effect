@@ -9,6 +9,8 @@ const elements = {
     afterName: document.getElementById("after-name"),
     beforeMeta: document.getElementById("before-meta"),
     afterMeta: document.getElementById("after-meta"),
+    originInputs: [...document.querySelectorAll('input[name="origin"]')],
+    originReadout: document.getElementById("origin-readout"),
     clearButton: document.getElementById("clear-images"),
     renderButton: document.getElementById("render-video"),
     status: document.getElementById("status"),
@@ -29,6 +31,7 @@ const selections = {
     after: null,
 };
 
+let origin = { x: 0.5, y: 0.5, label: "Center" };
 let busyMode = null;
 let elapsedTimer = null;
 let renderStartedAt = 0;
@@ -52,6 +55,10 @@ function formatBytes(bytes) {
     return `${amount.toFixed(digits)} ${units[unitIndex]}`;
 }
 
+function formatPercent(value) {
+    return String(Math.round(value * 100)).padStart(2, "0");
+}
+
 function setStatus(message, state = "ready") {
     elements.status.textContent = message;
     elements.statusDot.dataset.state = state;
@@ -68,8 +75,8 @@ function updateSlot(slot) {
     button.dataset.selected = String(Boolean(selection));
     name.textContent = selection?.fileName ?? `Choose ${label} image`;
     meta.textContent = selection
-        ? `${formatBytes(selection.bytes)} · click to replace`
-        : `The ${isBefore ? "starting" : "ending"} frame`;
+        ? `${formatBytes(selection.bytes)} / click to replace`
+        : `${isBefore ? "Starting" : "Ending"} frame`;
     button.setAttribute(
         "aria-label",
         selection
@@ -85,6 +92,9 @@ function updateControls() {
 
     elements.beforeButton.disabled = isBusy;
     elements.afterButton.disabled = isBusy;
+    elements.originInputs.forEach((input) => {
+        input.disabled = isBusy;
+    });
     elements.clearButton.disabled = isBusy || (!hasBefore && !hasAfter);
     elements.renderButton.disabled = isBusy || !hasBefore || !hasAfter;
 }
@@ -106,6 +116,18 @@ function setSelection(slot, selection) {
     hideResult();
 }
 
+function updateOrigin(input) {
+    origin = {
+        x: Number(input.dataset.x),
+        y: Number(input.dataset.y),
+        label: input.dataset.label,
+    };
+    elements.originReadout.textContent =
+        `${origin.label.toUpperCase()} / ${formatPercent(origin.x)}—${formatPercent(origin.y)}`;
+    hideResult();
+    setStatus(`Ripple origin set to ${origin.label.toLowerCase()}.`, "ready");
+}
+
 async function chooseImage(slot) {
     if (busyMode) return false;
     if (!invoke) {
@@ -124,7 +146,7 @@ async function chooseImage(slot) {
 
         setSelection(slot, selection);
         if (selections.before && selections.after) {
-            setStatus("Both frames are ready. Render the MP4 when you are set.", "success");
+            setStatus("Both frames are ready. Choose an origin, then render.", "success");
         } else {
             const next = slot === "before" ? "after" : "before";
             setStatus(`${selection.fileName} selected. Choose the ${next} image.`, "success");
@@ -142,7 +164,7 @@ function startElapsedStatus() {
     window.clearInterval(elapsedTimer);
     elapsedTimer = window.setInterval(() => {
         const seconds = ((performance.now() - renderStartedAt) / 1000).toFixed(1);
-        setStatus(`Rendering 180 frames with Metal… ${seconds}s elapsed.`, "busy");
+        setStatus(`Rendering 180 EXIF-oriented frames with Metal… ${seconds}s elapsed.`, "busy");
     }, 250);
 }
 
@@ -154,7 +176,7 @@ function stopElapsedStatus() {
 function showResult(result) {
     elements.resultFile.textContent = result.outputFileName;
     elements.resultFrame.textContent = `${result.width} × ${result.height}`;
-    elements.resultVideo.textContent = `${result.durationSeconds.toFixed(1)}s · ${result.framesPerSecond} fps`;
+    elements.resultVideo.textContent = `${result.durationSeconds.toFixed(1)}s / ${result.framesPerSecond} fps`;
     elements.resultSize.textContent = formatBytes(result.outputBytes);
     elements.result.hidden = false;
 }
@@ -171,16 +193,18 @@ async function renderVideo() {
     setStatus("Choose where to save the MP4.", "busy");
     startElapsedStatus();
     try {
-        const result = await invoke("render_ripple_video");
+        const result = await invoke("render_ripple_video", {
+            origin: { x: origin.x, y: origin.y },
+        });
         stopElapsedStatus();
         if (!result) {
-            setStatus("Export canceled. Your two images are still selected.", "ready");
+            setStatus("Export canceled. Your images and origin are unchanged.", "ready");
             return true;
         }
 
         showResult(result);
         const elapsed = (result.renderMilliseconds / 1000).toFixed(1);
-        setStatus(`${result.outputFileName} saved successfully in ${elapsed}s.`, "success");
+        setStatus(`${result.outputFileName} saved in ${elapsed}s from ${origin.label.toLowerCase()}.`, "success");
     } catch (error) {
         stopElapsedStatus();
         setStatus(String(error), "error");
@@ -233,7 +257,7 @@ async function restoreSelections() {
         setSelection("before", snapshot.before);
         setSelection("after", snapshot.after);
         if (snapshot.before && snapshot.after) {
-            setStatus("Both frames are ready. Render the MP4 when you are set.", "success");
+            setStatus("Both frames are ready. Choose an origin, then render.", "success");
         } else if (snapshot.before || snapshot.after) {
             setStatus(`Choose the ${snapshot.before ? "after" : "before"} image.`, "ready");
         }
@@ -244,6 +268,9 @@ async function restoreSelections() {
 
 elements.beforeButton.addEventListener("click", () => chooseImage("before"));
 elements.afterButton.addEventListener("click", () => chooseImage("after"));
+elements.originInputs.forEach((input) => {
+    input.addEventListener("change", () => updateOrigin(input));
+});
 elements.renderButton.addEventListener("click", renderVideo);
 elements.clearButton.addEventListener("click", clearImages);
 elements.shortcutsButton.addEventListener("click", toggleShortcuts);

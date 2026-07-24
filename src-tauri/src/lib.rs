@@ -57,6 +57,12 @@ struct SelectionSnapshot {
     after: Option<ImageSelection>,
 }
 
+#[derive(Clone, Copy, Debug, Deserialize)]
+struct RenderOrigin {
+    x: f64,
+    y: f64,
+}
+
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct NativeRenderSummary {
@@ -181,7 +187,9 @@ fn clear_images(state: State<'_, RippleState>) -> Result<(), String> {
 async fn render_ripple_video(
     app: AppHandle,
     state: State<'_, RippleState>,
+    origin: RenderOrigin,
 ) -> Result<Option<RenderResult>, String> {
+    let origin = validate_render_origin(origin)?;
     state
         .rendering
         .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
@@ -235,7 +243,7 @@ async fn render_ripple_video(
     let output = validate_output_path(output, &before.path, &after.path)?;
 
     let render_result = tauri::async_runtime::spawn_blocking(move || {
-        run_renderer(&before.path, &after.path, &output)
+        run_renderer(&before.path, &after.path, &output, origin)
     })
     .await
     .map_err(|_| "The Metal renderer stopped unexpectedly.".to_owned())??;
@@ -284,6 +292,17 @@ fn has_supported_image_extension(path: &Path) -> bool {
                 .iter()
                 .any(|allowed| extension.eq_ignore_ascii_case(allowed))
         })
+}
+
+fn validate_render_origin(origin: RenderOrigin) -> Result<RenderOrigin, String> {
+    if !origin.x.is_finite()
+        || !origin.y.is_finite()
+        || !(0.0..=1.0).contains(&origin.x)
+        || !(0.0..=1.0).contains(&origin.y)
+    {
+        return Err("Choose a ripple origin inside the frame.".to_owned());
+    }
+    Ok(origin)
 }
 
 fn validate_output_path(
@@ -335,13 +354,20 @@ fn validate_output_path(
     Ok(output)
 }
 
-fn run_renderer(before: &Path, after: &Path, output: &Path) -> Result<RenderResult, String> {
+fn run_renderer(
+    before: &Path,
+    after: &Path,
+    output: &Path,
+    origin: RenderOrigin,
+) -> Result<RenderResult, String> {
     let executable = materialize_renderer()?;
     let started = Instant::now();
     let process_result = Command::new(&executable)
         .arg(before)
         .arg(after)
         .arg(output)
+        .arg(origin.x.to_string())
+        .arg(origin.y.to_string())
         .output();
     let _ = fs::remove_file(&executable);
     let process_output =
@@ -467,5 +493,34 @@ mod tests {
             sanitize_renderer_error(b"", [Path::new("/tmp/input.png")]),
             "The ripple video could not be rendered."
         );
+    }
+
+    #[test]
+    fn accepts_origins_on_and_inside_frame_edges() {
+        for origin in [
+            RenderOrigin { x: 0.0, y: 0.0 },
+            RenderOrigin { x: 0.5, y: 0.5 },
+            RenderOrigin { x: 1.0, y: 1.0 },
+        ] {
+            assert!(validate_render_origin(origin).is_ok());
+        }
+    }
+
+    #[test]
+    fn rejects_origins_outside_the_frame_or_not_finite() {
+        for origin in [
+            RenderOrigin { x: -0.1, y: 0.5 },
+            RenderOrigin { x: 0.5, y: 1.1 },
+            RenderOrigin {
+                x: f64::NAN,
+                y: 0.5,
+            },
+            RenderOrigin {
+                x: 0.5,
+                y: f64::INFINITY,
+            },
+        ] {
+            assert!(validate_render_origin(origin).is_err());
+        }
     }
 }
